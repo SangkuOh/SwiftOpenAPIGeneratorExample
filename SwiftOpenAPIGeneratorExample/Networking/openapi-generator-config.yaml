@@ -1,0 +1,6 @@
+# Swift OpenAPI Generator configuration for the greeting sample.
+generate:
+  - types
+  - client
+accessModifier: internal
+namingStrategy: idiomatic
