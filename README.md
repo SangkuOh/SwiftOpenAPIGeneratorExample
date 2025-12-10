@@ -30,7 +30,7 @@ Swift OpenAPI Generator가 만든 클라이언트와 SwiftUI 화면을 잇는 �
 - `Networking/openapi.yaml` / `openapi-generator-config.yaml`: OpenAPI 계약과 생성 설정의 단일 소스.
 - `Config/*.xcconfig`: Info.plist에 주입되는 API 베이스 URL, HTTP 허용 호스트 설정.
 - `Documentation.docc/`: 아키텍처, 시작 가이드, OpenAPI 워크플로 문서.
-- `SwiftOpenAPIGeneratorExampleTests/`: Swift Testing 기반 유닛 테스트(`ContentViewLogicTests`).
+- `SwiftOpenAPIGeneratorExampleTests/`: Swift Testing 기반 유닛 테스트(`ContentFeatureLogicTests`).
 
 ## OpenAPI 워크플로
 - 스펙을 수정하면 빌드 시 `plugin:OpenAPIGenerator`가 `types`·`client`를 내부 접근자로 생성합니다.
