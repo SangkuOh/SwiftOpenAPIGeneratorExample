@@ -2,7 +2,7 @@
 
 ## 스펙
 - 계약은 `Networking/openapi.yaml`에 정의되어 있습니다. 이 예제는 `GET /greet`가 `{"message": "..."}`를 반환한다는 단순 계약을 사용합니다.
-- 런타임 기본 URL은 `.xcconfig`(`Config/Development.xcconfig`, `Config/Release.xcconfig`)의 `API_BASE_URL` 값이 Info.plist로 전달되어 `RemoteAPI`에서 읽힙니다. 비워두면 OpenAPI 스펙의 첫 서버(`Servers.server1()`, 기본 `http://localhost:8080/api`)로 되돌아갑니다. `API_ALLOW_INSECURE_HOSTS`(콤마 구분)가 비어 있으면 HTTP를 전부 거부하고, 설정되지 않은 경우에만 로컬 호스트(`localhost`, `127.0.0.1`)를 허용합니다.
+- 런타임 기본 URL은 `.xcconfig`(`Config/Development.xcconfig`, `Config/Release.xcconfig`)의 `API_BASE_URL` 값이 Info.plist로 전달되어 `RemoteAPI`에서 읽힙니다. 비워두면 OpenAPI 스펙의 첫 서버(`Servers.Server1.url()`, 기본 `http://localhost:8080/api`)로 되돌아갑니다. `API_ALLOW_INSECURE_HOSTS`(콤마 구분)가 비어 있으면 HTTP를 전부 거부하고, 설정되지 않은 경우에만 로컬 호스트(`localhost`, `127.0.0.1`)를 허용합니다.
 
 ## 생성 설정
 - `Networking/openapi-generator-config.yaml`는 `types`와 `client`를 생성하고, `internal` 접근 제어 및 `idiomatic` 이름 전략을 사용하도록 지정합니다.
@@ -15,7 +15,7 @@
 
 ```swift
 let transport = URLSessionTransport()
-let serverURL = try Servers.server1() // openapi.yaml의 servers[0]
+let serverURL = try Servers.Server1.url() // openapi.yaml의 servers[0]
 let client = Client(serverURL: serverURL, transport: transport)
 let response = try await client.getGreeting(query: .init(name: name))
 ```

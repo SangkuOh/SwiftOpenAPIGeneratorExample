@@ -1,14 +1,14 @@
 # 시작하기
 
 ## 필수 조건
-- Xcode 15 이상(Observation과 Swift Concurrency 사용)과 iOS 17 시뮬레이터 또는 디바이스.
+- Xcode 16 이상(Swift Testing, Swift 6 타깃)과 iOS 17 시뮬레이터 또는 디바이스.
 - 백엔드가 `http://localhost:8080/api`에서 `GET /greet?name=` 요청에 `{"message": "..."}` 형태로 응답하도록 준비되어 있어야 합니다. 다른 주소라면 `Config/Development.xcconfig`·`Config/Release.xcconfig`의 `API_BASE_URL`을 바꾸고, 생성물과 맞추려면 `Networking/openapi.yaml`의 `servers`도 함께 조정하세요.
 - 프로덕션에서는 HTTPS를 기본으로 사용하고, 로컬 개발 시에만 필요한 경우에만 HTTP를 허용하세요. HTTP 예외는 `.xcconfig`의 `API_ALLOW_INSECURE_HOSTS`로 관리합니다.
 
 ## 샘플 실행
-1. 백엔드를 기동하거나, 네트워크가 없는 환경이면 `ContentView().appDependencies(.preview())`처럼 `Environment(\.appDependencies)`에 프리뷰 구성을 넣어 목 응답을 사용합니다.
+1. 백엔드를 기동하거나, 네트워크가 없는 환경이면 앱 진입(`SwiftOpenAPIGeneratorExampleApp`)에서 기본으로 `.preview()` 의존성을 주입하므로 바로 목 응답을 확인할 수 있습니다. 다른 진입점에서 사용하려면 `ContentFeature().environment(\.appDependencies, .preview())`를 적용하세요.
 2. `SwiftOpenAPIGeneratorExample.xcodeproj`를 열고 기본 타깃을 선택한 뒤 시뮬레이터/디바이스를 지정합니다.
-3. 실행하면 `ContentView`에서 이름을 입력하고 “Fetch greeting”을 눌러 생성된 클라이언트가 만든 요청과 응답 처리를 확인할 수 있습니다.
+3. 실행하면 `ContentFeature`에서 이름을 입력하고 “Fetch greeting”을 눌러 생성된 클라이언트가 만든 요청과 응답 처리를 확인할 수 있습니다.
 
 ## 자신의 API로 바꾸기
 1. `Networking/openapi.yaml`에 실제 OpenAPI 스펙을 반영하고, 서버 URL을 원하는 환경(개발/스테이징/프로덕션)으로 맞춥니다.
