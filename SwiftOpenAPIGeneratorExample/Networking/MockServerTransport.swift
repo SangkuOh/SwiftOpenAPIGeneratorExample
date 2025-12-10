@@ -2,9 +2,10 @@ import Foundation
 import HTTPTypes
 import OpenAPIRuntime
 
-/// Lightweight transport that returns stubbed responses instead of performing network calls.
+/// 네트워크 호출을 하지 않고 미리 정의된 응답을 돌려주는 가벼운 Transport 구현입니다.
 final actor MockServerTransport: ClientTransport {
 
+    /// 요청을 식별하고 응답을 만들어 내는 클로저 세트를 묶은 단일 스텁입니다.
     struct Stub {
         let matcher: (HTTPRequest) -> Bool
         let handler: @Sendable (HTTPRequest, HTTPBody?) async throws -> (HTTPResponse, HTTPBody?)
@@ -36,15 +37,18 @@ final actor MockServerTransport: ClientTransport {
         self.stubs = stubs
     }
 
+    /// 지정한 스텁을 추가 등록합니다.
     func register(_ stub: Stub) {
         stubs.append(stub)
     }
 
+    /// 등록된 스텁과 기록된 요청을 모두 초기화합니다.
     func reset() {
         stubs.removeAll()
         recordedRequests.removeAll()
     }
 
+    /// 첫 번째로 매칭되는 스텁을 찾아 응답을 돌려주고, 없으면 오류를 던집니다.
     func send(
         _ request: HTTPRequest,
         body: HTTPBody?,
@@ -60,7 +64,7 @@ final actor MockServerTransport: ClientTransport {
 }
 
 extension MockServerTransport.Stub {
-    /// Returns a stub for the `GET /greet` endpoint used in this sample.
+    /// 샘플에서 사용하는 `GET /greet` 엔드포인트에 대한 스텁을 만듭니다.
     static func greetingResponse(
         status: HTTPResponse.Status = .ok,
         message: @escaping (String?) -> String = { name in
