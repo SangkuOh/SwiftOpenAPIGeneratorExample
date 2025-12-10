@@ -6,13 +6,13 @@ struct AppDependencies {
 
     /// 실제 네트워크를 사용하는 라이브 의존성을 구성합니다.
     static func live(configuration: APIConfiguration = .default()) -> Self {
-        let api: RemoteAPI<Client>
+        let apiEnvironment: APIEnvironment<Client>
         do {
-            api = try RemoteAPI<Client>(configuration: configuration)
+            apiEnvironment = try APIEnvironment<Client>.live(configuration: configuration)
         } catch {
-            preconditionFailure("Failed to configure RemoteAPI: \(error.localizedDescription)")
+            preconditionFailure("Failed to configure APIEnvironment: \(error.localizedDescription)")
         }
-        let repository = DefaultGreetingRepository(api: api)
+        let repository = DefaultGreetingRepository(greetingAPI: apiEnvironment.greeting)
         let service = DefaultGreetingService(repository: repository)
         return .init(greetingService: service)
     }
@@ -22,14 +22,13 @@ struct AppDependencies {
         configuration: APIConfiguration = .default(),
         stubs: [MockServerTransport.Stub] = [.greetingResponse()]
     ) -> Self {
-        let transport = MockServerTransport(stubs: stubs)
-        let api: RemoteAPI<Client>
+        let apiEnvironment: APIEnvironment<Client>
         do {
-            api = try RemoteAPI<Client>(mockTransport: transport, configuration: configuration)
+            apiEnvironment = try APIEnvironment<Client>.preview(configuration: configuration, stubs: stubs)
         } catch {
-            preconditionFailure("Failed to configure mock RemoteAPI: \(error.localizedDescription)")
+            preconditionFailure("Failed to configure mock APIEnvironment: \(error.localizedDescription)")
         }
-        let repository = DefaultGreetingRepository(api: api)
+        let repository = DefaultGreetingRepository(greetingAPI: apiEnvironment.greeting)
         let service = DefaultGreetingService(repository: repository)
         return .init(greetingService: service)
     }
