@@ -1,17 +1,18 @@
 import Foundation
 import HTTPTypes
 import OpenAPIRuntime
+import APITypes
 
 /// 네트워크 호출을 하지 않고 미리 정의된 응답을 돌려주는 가벼운 Transport 구현입니다.
-final actor MockServerTransport: ClientTransport {
+public final actor MockServerTransport: ClientTransport {
 
     /// 요청을 식별하고 응답을 만들어 내는 클로저 세트를 묶은 단일 스텁입니다.
-    struct Stub {
-        let matcher: (HTTPRequest) -> Bool
-        let handler: @Sendable (HTTPRequest, HTTPBody?) async throws -> (HTTPResponse, HTTPBody?)
+    public struct Stub: Sendable {
+        public let matcher: @Sendable (HTTPRequest) -> Bool
+        public let handler: @Sendable (HTTPRequest, HTTPBody?) async throws -> (HTTPResponse, HTTPBody?)
 
-        init(
-            matcher: @escaping (HTTPRequest) -> Bool,
+        public init(
+            matcher: @escaping @Sendable (HTTPRequest) -> Bool,
             handler: @escaping @Sendable (HTTPRequest, HTTPBody?) async throws -> (HTTPResponse, HTTPBody?)
         ) {
             self.matcher = matcher
@@ -19,10 +20,10 @@ final actor MockServerTransport: ClientTransport {
         }
     }
 
-    enum Error: Swift.Error, LocalizedError {
+    public enum Error: Swift.Error, LocalizedError {
         case missingStub(method: HTTPRequest.Method, path: String?)
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             switch self {
                 case .missingStub(let method, let path):
                     return "No mock stub for \(method.rawValue) \(path ?? "<nil>")"
@@ -30,26 +31,26 @@ final actor MockServerTransport: ClientTransport {
         }
     }
 
-    private(set) var recordedRequests: [HTTPRequest] = []
+    public private(set) var recordedRequests: [HTTPRequest] = []
     private var stubs: [Stub]
 
-    init(stubs: [Stub] = []) {
+    public init(stubs: [Stub] = []) {
         self.stubs = stubs
     }
 
     /// 지정한 스텁을 추가 등록합니다.
-    func register(_ stub: Stub) {
+    public func register(_ stub: Stub) {
         stubs.append(stub)
     }
 
     /// 등록된 스텁과 기록된 요청을 모두 초기화합니다.
-    func reset() {
+    public func reset() {
         stubs.removeAll()
         recordedRequests.removeAll()
     }
 
     /// 첫 번째로 매칭되는 스텁을 찾아 응답을 돌려주고, 없으면 오류를 던집니다.
-    func send(
+    public func send(
         _ request: HTTPRequest,
         body: HTTPBody?,
         baseURL: URL,
@@ -63,11 +64,11 @@ final actor MockServerTransport: ClientTransport {
     }
 }
 
-extension MockServerTransport.Stub {
+public extension MockServerTransport.Stub {
     /// 샘플에서 사용하는 `GET /greet` 엔드포인트에 대한 스텁을 만듭니다.
     static func greetingResponse(
         status: HTTPResponse.Status = .ok,
-        message: @escaping (String?) -> String = { name in
+        message: @escaping @Sendable (String?) -> String = { name in
             let trimmed = name?.trimmingCharacters(in: .whitespacesAndNewlines)
             if let trimmed, !trimmed.isEmpty {
                 return "Hello \(trimmed)"
@@ -81,7 +82,7 @@ extension MockServerTransport.Stub {
                 request.method == .get && (request.path ?? "").contains("/greet")
             },
             handler: { request, _ in
-                let name = await request.queryItem(named: "name")
+                let name = request.queryItem(named: "name")
                 let data: Data = try await MainActor.run {
                     let greeting = Components.Schemas.Greeting(
                         message: message(name)

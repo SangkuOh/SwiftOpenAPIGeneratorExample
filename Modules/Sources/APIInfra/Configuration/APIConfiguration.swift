@@ -1,22 +1,23 @@
 import Foundation
 import OpenAPIRuntime
+import APITypes
 
 /// Info.plist와 OpenAPI 서버 정보를 조합해 클라이언트 설정을 만드는 구성 객체입니다.
-struct APIConfiguration {
-    let baseURL: URL
-    let allowInsecureHosts: Set<String>
+public struct APIConfiguration {
+    public let baseURL: URL
+    public let allowInsecureHosts: Set<String>
 
-    init(baseURL: URL, allowInsecureHosts: Set<String> = ["localhost", "127.0.0.1"]) {
+    public init(baseURL: URL, allowInsecureHosts: Set<String> = ["localhost", "127.0.0.1"]) {
         self.baseURL = baseURL
         self.allowInsecureHosts = allowInsecureHosts
     }
 
-    static func `default`(bundle: Bundle = .main) -> Self {
+    public static func `default`(bundle: Bundle = .main) -> Self {
         fromInfoPlist(bundle: bundle)
     }
 
     /// .xcconfig가 채운 Info.plist 값을 바탕으로 구성을 만듭니다.
-    static func fromInfoPlist(bundle: Bundle = .main) -> Self {
+    public static func fromInfoPlist(bundle: Bundle = .main) -> Self {
         let baseURL = resolveBaseURL(from: bundle.infoDictionary?["API_BASE_URL"] as? String)
         let insecureHosts = resolveAllowInsecureHosts(
             from: bundle.infoDictionary?["API_ALLOW_INSECURE_HOSTS"] as? String
@@ -25,7 +26,7 @@ struct APIConfiguration {
     }
 
     /// HTTPS가 아닌 경우 허용 목록에 포함되어 있는지 검사해 안전하게 베이스 URL을 결정합니다.
-    func validatedBaseURL() throws -> URL {
+    public func validatedBaseURL() throws -> URL {
         if baseURL.scheme == "https" { return baseURL }
         if let host = baseURL.host, allowInsecureHosts.contains(host) { return baseURL }
         throw RemoteAPIError.insecureBaseURL(baseURL)

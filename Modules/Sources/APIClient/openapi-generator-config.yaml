@@ -1,0 +1,7 @@
+# OpenAPI 문서는 같은 디렉터리의 openapi.yaml(../../api-spec/openapi/openapi.yaml 심볼릭 링크)을 사용합니다.
+generate:
+  - client
+accessModifier: public
+namingStrategy: idiomatic
+additionalImports:
+  - APITypes

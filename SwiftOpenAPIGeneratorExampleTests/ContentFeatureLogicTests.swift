@@ -1,6 +1,7 @@
 import Foundation
 import Testing
-@testable import SwiftOpenAPIGeneratorExample
+import AppUI
+import APIInfra
 
 @MainActor
 struct ContentFeatureLogicTests {

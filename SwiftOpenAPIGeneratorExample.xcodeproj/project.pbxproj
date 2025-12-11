@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		ADE47D8F2EE90A30000D20C2 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = ADE47D8E2EE90A30000D20C2 /* OpenAPIRuntime */; };
 		ADE47D922EE90ABD000D20C2 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = ADE47D912EE90ABD000D20C2 /* OpenAPIURLSession */; };
+		AEF8F1052F5B000100000000 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = AEF8F1012F5B000100000000 /* AppUI */; };
+		AEF8F1072F5B000100000000 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = AEF8F1032F5B000100000000 /* AppUI */; };
+		AEF8F1082F5B000100000000 /* APIInfra in Frameworks */ = {isa = PBXBuildFile; productRef = AEF8F1042F5B000100000000 /* APIInfra */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +49,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEF8F1072F5B000100000000 /* AppUI in Frameworks */,
+				AEF8F1082F5B000100000000 /* APIInfra in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,8 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ADE47D922EE90ABD000D20C2 /* OpenAPIURLSession in Frameworks */,
-				ADE47D8F2EE90A30000D20C2 /* OpenAPIRuntime in Frameworks */,
+				AEF8F1052F5B000100000000 /* AppUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,6 +114,8 @@
 			);
 			name = SwiftOpenAPIGeneratorExampleTests;
 			packageProductDependencies = (
+				AEF8F1032F5B000100000000 /* AppUI */,
+				AEF8F1042F5B000100000000 /* APIInfra */,
 			);
 			productName = SwiftOpenAPIGeneratorExampleTests;
 			productReference = AD19205A2EE93B24003D202B /* SwiftOpenAPIGeneratorExampleTests.xctest */;
@@ -126,15 +132,13 @@
 			buildRules = (
 			);
 			dependencies = (
-				ADE47DC72EE90E36000D20C2 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AD3AB12A2EE908BD00D5376D /* SwiftOpenAPIGeneratorExample */,
 			);
 			name = SwiftOpenAPIGeneratorExample;
 			packageProductDependencies = (
-				ADE47D8E2EE90A30000D20C2 /* OpenAPIRuntime */,
-				ADE47D912EE90ABD000D20C2 /* OpenAPIURLSession */,
+				AEF8F1012F5B000100000000 /* AppUI */,
 			);
 			productName = SwiftOpenAPIGeneratorExample;
 			productReference = AD3AB1282EE908BD00D5376D /* SwiftOpenAPIGeneratorExample.app */;
@@ -173,6 +177,7 @@
 				ADE47D902EE90ABD000D20C2 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */,
 				ADE47DAF2EE90CF9000D20C2 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
 				AE6C4E232EF0AA0000BEE000 /* XCRemoteSwiftPackageReference "swift-http-types" */,
+				AEF8F1002F5B000100000000 /* XCLocalSwiftPackageReference "Modules" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AD3AB1292EE908BD00D5376D /* Products */;
@@ -224,10 +229,6 @@
 			isa = PBXTargetDependency;
 			target = AD3AB1272EE908BD00D5376D /* SwiftOpenAPIGeneratorExample */;
 			targetProxy = AD19205E2EE93B24003D202B /* PBXContainerItemProxy */;
-		};
-		ADE47DC72EE90E36000D20C2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = ADE47DC62EE90E36000D20C2 /* OpenAPIGenerator */;
 		};
 /* End PBXTargetDependency section */
 
@@ -557,6 +558,13 @@
 		};
 /* End XCRemoteSwiftPackageReference section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		AEF8F1002F5B000100000000 /* XCLocalSwiftPackageReference "Modules" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Modules;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		ADE47D8E2EE90A30000D20C2 /* OpenAPIRuntime */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -572,6 +580,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ADE47DAF2EE90CF9000D20C2 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
 			productName = "plugin:OpenAPIGenerator";
+		};
+		AEF8F1012F5B000100000000 /* AppUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AEF8F1002F5B000100000000 /* XCLocalSwiftPackageReference "Modules" */;
+			productName = AppUI;
+		};
+		AEF8F1032F5B000100000000 /* AppUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AEF8F1002F5B000100000000 /* XCLocalSwiftPackageReference "Modules" */;
+			productName = AppUI;
+		};
+		AEF8F1042F5B000100000000 /* APIInfra */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AEF8F1002F5B000100000000 /* XCLocalSwiftPackageReference "Modules" */;
+			productName = APIInfra;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
