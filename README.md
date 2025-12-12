@@ -4,29 +4,28 @@ Swift OpenAPI Generator가 만든 클라이언트와 SwiftUI 화면을 잇는 �
 
 ## 주요 특징
 - SwiftUI `ContentFeature` 한 화면에서 `@State`로 입력/로딩/결과/에러를 관리하고 액션은 동일 타입의 메서드로 분리했습니다.
-- 의존성은 `Environment(\.appDependencies)` 한 경로에서 주입하며, `AppDependencies.live/preview`로 프로덕션과 목 구성을 재사용합니다.
-- 도메인/서비스/데이터를 `AppDomain`·`AppService`·`AppData`로 분리해 레이어 경계를 명확히 했습니다.
+- 의존성은 `Environment(\.appDependencies)` 한 경로에서 주입하며, 기본값은 `AppDependencies.live()`가 `GreetingRepositoryFactory.live()`를 통해 조립한 라이브 의존성입니다. UI만 빠르게 확인할 때는 `.environment(\.appDependencies, .preview())`로 덮어써 목 저장소를 사용하세요.
+- UI → Service(도메인/비즈니스 규칙) → Repository(데이터 접근) 흐름을 최소 경로로 두고, Repository가 OpenAPI DTO를 도메인으로 매핑합니다.
 - 네트워크는 `APIInfra`가 `APIClient`/`APITypes` 생성물을 감싸서 AppData만 알도록 하고, UI/도메인은 OpenAPI 세부사항을 모릅니다.
-- `Modules` Swift 패키지는 `AppDomain`/`AppService`/`AppData`/`AppUI`/`APIInfra`/`APITypes`/`APIClient` 타깃으로 구성되어 앱 타깃은 `AppUI` 하나만 의존하면 됩니다.
+- `Modules` Swift 패키지는 `AppService`/`AppData`/`AppUI`/`APIInfra`/`APITypes`/`APIClient` 타깃으로 구성됩니다. `AppUI`는 `AppService`만 의존하고, 저장소 조립은 App 타깃에서 `GreetingRepositoryFactory`로 수행합니다.
 - OpenAPI 스펙은 `api-spec/openapi/openapi.yaml` 한 곳에서 관리하고, 생성 설정은 `Modules/Sources/APITypes/openapi-generator-config.yaml`·`Modules/Sources/APIClient/openapi-generator-config.yaml`로 분리해 types/client를 따로 생성합니다.
-- `MockServerTransport`로 네트워크 없이도 동일 코드 경로를 실행하는 프리뷰/테스트 구성을 제공합니다.
+- 프리뷰/테스트 모킹은 `APIMockScenarios` 한 곳에서 스텁을 만들고 `MockServerTransport`로 실행합니다. UI만 빠르게 확인하려면 `AppDependencies.preview()`를, 실제 API 경로를 목으로 타려면 `GreetingRepositoryFactory.preview()`로 저장소를 만든 뒤 `AppDependencies.live(repository:)`로 전달하세요.
 
 ## 요구 사항
 - Xcode 16 이상(스위프트 테스팅, Swift 6 타겟)과 iOS 17 이상 시뮬레이터 또는 디바이스.
 - 기본 스펙은 `http://localhost:8080/api`에 열린 `GET /greet`가 `{"message":"..."}` 형태로 응답한다고 가정합니다. 다른 주소라면 `Config/*.xcconfig`와 `api-spec/openapi/openapi.yaml`의 `servers`를 함께 조정하세요.
 
 ## 실행 방법
-1) **목(기본)으로 보기**: `SwiftOpenAPIGeneratorExampleApp`에서 `.environment(\.appDependencies, .preview())`를 사용하므로 바로 실행하면 목 응답을 반환합니다. 이름을 입력하고 “Fetch greeting”을 눌러 흐름을 확인하세요.  
-2) **실제 API로 보기**: App 진입에서 `.live()`를 주입하거나, 프리뷰·테스트에서도 `.preview(configuration:)`에 원하는 `GreetingAPIConfiguration`을 전달하세요. `Config/Development.xcconfig`의 `API_BASE_URL`/`API_ALLOW_INSECURE_HOSTS`로 베이스 URL과 HTTP 예외를 관리합니다(빈 값이면 스펙의 첫 서버로 폴백, HTTP는 기본 차단).
+1) **실제 API(기본)**: `SwiftOpenAPIGeneratorExampleApp`은 기본 Environment에 `AppDependencies.live()`를 제공하므로 바로 실행해 실제 API 호출 흐름을 확인하세요.  
+2) **목으로 보기**: UI만 빠르게 확인하거나 네트워크를 끄고 싶다면 `ContentFeature().environment(\.appDependencies, .preview())`처럼 프리뷰/런타임에서 명시적으로 목 의존성을 주입하세요. `GreetingRepositoryFactory.preview(stubs:)`와 `AppDependencies.live(repository:)`를 조합하면 OpenAPI 경로를 그대로 타면서도 목으로 검증할 수 있습니다.
 3) **커스텀 스펙 적용**: `api-spec/openapi/openapi.yaml`과 `Modules/Sources/APITypes`·`Modules/Sources/APIClient`의 생성 설정을 원하는 계약/옵션으로 수정하면 빌드 시 플러그인이 자동 재생성합니다. 생성물은 DerivedData 아래에서만 유지됩니다.
 
 ## 프로젝트 구조
 - `Modules/Package.swift`: 계층별 라이브러리 타겟을 선언한 Swift 패키지 매니페스트.
 - `Modules/Sources/AppUI/`: 입력/액션/상태·에러 표현을 담은 SwiftUI 화면과 `EnvironmentValues` 확장, `AppDependencies`.
-- `Modules/Sources/AppService/`: `GreetingService` 유스케이스 인터페이스와 기본 구현.
-- `Modules/Sources/AppDomain/`: `GreetingRepository` 인터페이스와 `GreetingEntity`.
+- `Modules/Sources/AppService/`: `GreetingEntity` 도메인 모델, `GreetingService`/`GreetingRepository` 인터페이스, 기본 서비스 구현, 테스트용 `MockGreetingRepository`.
 - `Modules/Sources/AppData/`: `DefaultGreetingRepository` 구현과 저장소 조립 헬퍼.
-- `Modules/Sources/APIInfra/`: API 구성(`APIConfiguration`), `APIEnvironment`, `GreetingAPI` 래퍼, `MockServerTransport`, `RemoteAPIError`.
+- `Modules/Sources/APIInfra/`: API 구성(`APIConfiguration`), `APIEnvironment`, `GreetingAPI` 래퍼, `MockServerTransport`, `APIMockScenarios`, `RemoteAPIError`.
 - `Modules/Sources/APITypes/`: OpenAPI types 전용 타깃 설정 파일.
 - `Modules/Sources/APIClient/`: OpenAPI client 전용 타깃 설정 파일.
 - `api-spec/openapi/openapi.yaml`: 단일 OpenAPI 스펙 경로.
@@ -57,7 +56,7 @@ swift openapi generate \
 
 ## 테스트
 - 스킴: `SwiftOpenAPIGeneratorExample` (빌드 구성: Development). 시뮬레이터 예시는 iPhone 16 / iOS 18.5 기준입니다.
-- 기본 원격 호출을 막으려면 `.preview()` 의존성을 주입하거나 `GreetingAPIMockStub`를 전달하세요.
+- 기본 원격 호출을 막으려면 `AppDependencies.preview()`(내장 목) 또는 `GreetingRepositoryFactory.preview(stubs:)` 결과를 `AppDependencies.live(repository:)`로 감싸 주입하세요.
 - 표준 출력만 사용하는 xcodebuild 예시:
 
 ```sh

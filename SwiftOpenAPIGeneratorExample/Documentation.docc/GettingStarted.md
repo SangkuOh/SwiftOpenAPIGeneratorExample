@@ -6,7 +6,7 @@
 - 프로덕션에서는 HTTPS를 기본으로 사용하고, 로컬 개발 시에만 필요한 경우에만 HTTP를 허용하세요. HTTP 예외는 `.xcconfig`의 `API_ALLOW_INSECURE_HOSTS`로 관리합니다.
 
 ## 샘플 실행
-1. 백엔드를 기동하거나, 네트워크가 없는 환경이면 앱 진입(`SwiftOpenAPIGeneratorExampleApp`)에서 기본으로 `.preview()` 의존성을 주입하므로 바로 목 응답을 확인할 수 있습니다. 다른 진입점에서 사용하려면 `ContentFeature().environment(\.appDependencies, .preview())`를 적용하세요.
+1. 백엔드를 기동한 상태라면 기본 Environment가 `AppDependencies.live()`로 채워지므로 바로 실제 API 흐름을 확인할 수 있습니다. 네트워크 없는 환경에서 UI만 검증하려면 `ContentFeature().environment(\.appDependencies, .preview())`로 목 의존성을 명시하세요. OpenAPI 경로를 따라가며 목을 쓰고 싶다면 `GreetingRepositoryFactory.preview()/live`로 저장소를 만든 뒤 `AppDependencies.live(repository:)`로 감싸 전달합니다.
 2. `SwiftOpenAPIGeneratorExample.xcodeproj`를 열고 기본 타깃을 선택한 뒤 시뮬레이터/디바이스를 지정합니다.
 3. 실행하면 `ContentFeature`에서 이름을 입력하고 “Fetch greeting”을 눌러 생성된 클라이언트가 만든 요청과 응답 처리를 확인할 수 있습니다.
 
@@ -17,7 +17,7 @@
 4. 새 엔드포인트를 쓰려면 `Modules/Sources/APIInfra`에 전용 모듈(프로토콜+구현)을 추가하고, `APIEnvironment`에 프로퍼티로 노출한 뒤 리포지터리에서 이를 사용해 도메인 엔터티로 매핑하세요.
 
 ## API 베이스 URL과 환경 분리
-- 앱/프리뷰는 `AppDependencies.live(configuration:)` 또는 `.preview(configuration:)`를 통해 `GreetingAPIConfiguration`을 조립하고 `Environment(\.appDependencies)`로 전달합니다. 기본값은 Info.plist의 `API_BASE_URL`/`API_ALLOW_INSECURE_HOSTS`(Config/*.xcconfig에서 채움)을 읽어 사용하며, 설정되지 않았을 때만 OpenAPI 스펙의 `servers[0]`로 되돌아갑니다.
+– 앱은 `GreetingRepositoryFactory.live(configuration:, transport:)` 또는 `.preview(stubs:)`로 저장소를 만든 뒤 `AppDependencies.live(repository:)`로 감싸 `Environment(\.appDependencies)`에 전달합니다. 기본 Environment 값은 `AppDependencies.live()`가 제공하는 라이브 의존성을 사용합니다. Info.plist의 `API_BASE_URL`/`API_ALLOW_INSECURE_HOSTS`(Config/*.xcconfig에서 채움)을 읽어 사용하며, 설정되지 않았을 때만 OpenAPI 스펙의 `servers[0]`로 되돌아갑니다.
 - `APIConfiguration`은 HTTPS만 허용하며, `API_ALLOW_INSECURE_HOSTS`(콤마 구분)를 비워 두면 HTTP를 전부 거부합니다. 값을 지정하면 해당 호스트에 한해 HTTP를 허용하고, 값이 없을 때만 기본 로컬 예외(`localhost`, `127.0.0.1`)를 적용합니다.
 
 ## 생성물 직접 살펴보기

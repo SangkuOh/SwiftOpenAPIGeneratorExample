@@ -10,7 +10,6 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .library(name: "AppDomain", targets: ["AppDomain"]),
         .library(name: "AppService", targets: ["AppService"]),
         .library(name: "AppData", targets: ["AppData"]),
         .library(name: "AppUI", targets: ["AppUI"]),
@@ -25,9 +24,6 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-generator.git", from: "1.10.3")
     ],
     targets: [
-        .target(
-            name: "AppDomain"
-        ),
         .target(
             name: "APITypes",
             dependencies: [
@@ -68,15 +64,13 @@ let package = Package(
         .target(
             name: "AppData",
             dependencies: [
-                "AppDomain",
+                "AppService",
                 "APIInfra"
             ]
         ),
         .target(
             name: "AppService",
-            dependencies: [
-                "AppDomain"
-            ]
+            dependencies: []
         ),
         .target(
             name: "AppUI",
