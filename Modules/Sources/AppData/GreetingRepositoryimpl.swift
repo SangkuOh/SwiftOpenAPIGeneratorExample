@@ -1,5 +1,5 @@
 import Foundation
-import AppDomain
+import AppService
 import APIInfra
 
 public typealias GreetingAPIConfiguration = APIConfiguration
@@ -13,11 +13,11 @@ public enum GreetingRepositoryDefaults {
     }
 
     public static func stubs() -> [GreetingAPIMockStub] {
-        [.greetingResponse()]
+        APIMockScenarios.defaults()
     }
 }
 
-/// 생성된 OpenAPI 클라이언트의 Greeting 엔드포인트를 호출해 도메인 엔티티로 변환합니다.
+/// 생성된 OpenAPI 클라이언트의 Greeting 엔드포인트를 호출해 도메인 엔티티로 반환합니다.
 public final class DefaultGreetingRepository: GreetingRepository {
     private let greetingAPI: any (GreetingAPI & Sendable)
 
@@ -25,7 +25,7 @@ public final class DefaultGreetingRepository: GreetingRepository {
         self.greetingAPI = greetingAPI
     }
 
-    /// 네트워크 DTO를 받아 도메인 엔티티로 매핑합니다.
+    /// 네트워크 DTO를 받아 도메인 엔티티로 변환합니다.
     public func greeting(name: String?) async throws -> GreetingEntity {
         let dto = try await greetingAPI.fetchGreeting(name: name)
         return GreetingEntity(message: dto.message)
@@ -38,15 +38,15 @@ public enum GreetingRepositoryFactory {
         configuration: GreetingAPIConfiguration = .default(),
         transport: GreetingAPITransport? = nil
     ) throws -> GreetingRepository {
-        let environment = try APIEnvironments.live(configuration: configuration, transport: transport)
+        let environment = try DefaultAPIEnvironment.live(configuration: configuration, transport: transport)
         return DefaultGreetingRepository(greetingAPI: environment.greeting)
     }
 
     public static func preview(
         configuration: GreetingAPIConfiguration = .default(),
-        stubs: [GreetingAPIMockStub] = [.greetingResponse()]
+        stubs: [GreetingAPIMockStub] = GreetingRepositoryDefaults.stubs()
     ) throws -> GreetingRepository {
-        let environment = try APIEnvironments.preview(configuration: configuration, stubs: stubs)
+        let environment = try DefaultAPIEnvironment.preview(configuration: configuration, stubs: stubs)
         return DefaultGreetingRepository(greetingAPI: environment.greeting)
     }
 }

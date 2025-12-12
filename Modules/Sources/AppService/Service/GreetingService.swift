@@ -1,9 +1,8 @@
 import Foundation
-import AppDomain
+/// Service가 비즈니스 규칙과 도메인 변환을 담당하며, Repository는 원격 호출을 캡슐화합니다.
 
-/// 화면에서 사용하는 유스케이스 계층으로, 입력값을 그대로 위임해 인사말을 조회합니다.
 public protocol GreetingService: Sendable {
-    /// 표시할 이름을 받아 인사말을 반환합니다.
+    /// 표시할 이름을 받아 도메인 엔티티로 변환한 인사말을 반환합니다.
     func greeting(name: String?) async throws -> GreetingEntity
 }
 
@@ -15,8 +14,10 @@ public final class DefaultGreetingService: GreetingService {
         self.repository = repository
     }
 
-    /// 현재는 추가 비즈니스 규칙 없이 저장소 호출을 위임합니다.
+    /// 저장소에서 받아온 도메인 엔티티에 추가 규칙을 적용합니다.
     public func greeting(name: String?) async throws -> GreetingEntity {
-        try await repository.greeting(name: name)
+        let entity = try await repository.greeting(name: name)
+        // 추가 비즈니스 규칙이 생기면 여기서 조정합니다.
+        return entity
     }
 }

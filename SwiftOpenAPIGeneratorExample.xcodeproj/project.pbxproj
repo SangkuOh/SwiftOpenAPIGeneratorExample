@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		ADE47D8F2EE90A30000D20C2 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = ADE47D8E2EE90A30000D20C2 /* OpenAPIRuntime */; };
-		ADE47D922EE90ABD000D20C2 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = ADE47D912EE90ABD000D20C2 /* OpenAPIURLSession */; };
 		AEF8F1052F5B000100000000 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = AEF8F1012F5B000100000000 /* AppUI */; };
 		AEF8F1072F5B000100000000 /* AppUI in Frameworks */ = {isa = PBXBuildFile; productRef = AEF8F1032F5B000100000000 /* AppUI */; };
 		AEF8F1082F5B000100000000 /* APIInfra in Frameworks */ = {isa = PBXBuildFile; productRef = AEF8F1042F5B000100000000 /* APIInfra */; };
@@ -523,6 +521,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		AEF8F1002F5B000100000000 /* XCLocalSwiftPackageReference "Modules" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Modules;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		ADE47D8D2EE90A30000D20C2 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -558,29 +563,7 @@
 		};
 /* End XCRemoteSwiftPackageReference section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		AEF8F1002F5B000100000000 /* XCLocalSwiftPackageReference "Modules" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Modules;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		ADE47D8E2EE90A30000D20C2 /* OpenAPIRuntime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ADE47D8D2EE90A30000D20C2 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
-			productName = OpenAPIRuntime;
-		};
-		ADE47D912EE90ABD000D20C2 /* OpenAPIURLSession */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ADE47D902EE90ABD000D20C2 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */;
-			productName = OpenAPIURLSession;
-		};
-		ADE47DC62EE90E36000D20C2 /* OpenAPIGenerator */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ADE47DAF2EE90CF9000D20C2 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
-			productName = "plugin:OpenAPIGenerator";
-		};
 		AEF8F1012F5B000100000000 /* AppUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AEF8F1002F5B000100000000 /* XCLocalSwiftPackageReference "Modules" */;

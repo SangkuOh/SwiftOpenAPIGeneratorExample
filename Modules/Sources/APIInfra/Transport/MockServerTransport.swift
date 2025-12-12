@@ -1,20 +1,24 @@
 import Foundation
 import HTTPTypes
 import OpenAPIRuntime
-import APITypes
 
 /// 네트워크 호출을 하지 않고 미리 정의된 응답을 돌려주는 가벼운 Transport 구현입니다.
 public final actor MockServerTransport: ClientTransport {
 
     /// 요청을 식별하고 응답을 만들어 내는 클로저 세트를 묶은 단일 스텁입니다.
     public struct Stub: Sendable {
+        /// 시나리오에서 스텁을 덮어쓸 때 사용하는 안정적인 식별자입니다.
+        /// 값이 같으면 기본 스텁을 해당 스텁으로 교체합니다.
+        public let key: String?
         public let matcher: @Sendable (HTTPRequest) -> Bool
         public let handler: @Sendable (HTTPRequest, HTTPBody?) async throws -> (HTTPResponse, HTTPBody?)
 
         public init(
+            key: String? = nil,
             matcher: @escaping @Sendable (HTTPRequest) -> Bool,
             handler: @escaping @Sendable (HTTPRequest, HTTPBody?) async throws -> (HTTPResponse, HTTPBody?)
         ) {
+            self.key = key
             self.matcher = matcher
             self.handler = handler
         }
@@ -65,30 +69,27 @@ public final actor MockServerTransport: ClientTransport {
 }
 
 public extension MockServerTransport.Stub {
-    /// 샘플에서 사용하는 `GET /greet` 엔드포인트에 대한 스텁을 만듭니다.
-    static func greetingResponse(
+    /// JSON 응답을 반환하는 공용 스텁 헬퍼입니다.
+    /// - Parameters:
+    ///   - key: 시나리오에서 덮어쓸 때 사용할 식별자입니다.
+    ///   - method: 매칭할 HTTP 메서드입니다.
+    ///   - pathContains: 요청 경로에 포함되어야 하는 문자열입니다.
+    ///   - status: 반환할 HTTP 상태 코드입니다.
+    ///   - body: 요청을 받아 JSON Data를 생성하는 클로저입니다.
+    static func jsonResponse(
+        key: String? = nil,
+        method: HTTPRequest.Method,
+        pathContains: String,
         status: HTTPResponse.Status = .ok,
-        message: @escaping @Sendable (String?) -> String = { name in
-            let trimmed = name?.trimmingCharacters(in: .whitespacesAndNewlines)
-            if let trimmed, !trimmed.isEmpty {
-                return "Hello \(trimmed)"
-            } else {
-                return "Hello from mock"
-            }
-        }
+        body: @escaping @Sendable (HTTPRequest, HTTPBody?) async throws -> Data
     ) -> Self {
         .init(
+            key: key,
             matcher: { request in
-                request.method == .get && (request.path ?? "").contains("/greet")
+                request.method == method && (request.path ?? "").contains(pathContains)
             },
-            handler: { request, _ in
-                let name = request.queryItem(named: "name")
-                let data: Data = try await MainActor.run {
-                    let greeting = Components.Schemas.Greeting(
-                        message: message(name)
-                    )
-                    return try JSONEncoder().encode(greeting)
-                }
+            handler: { request, requestBody in
+                let data = try await body(request, requestBody)
                 var response = HTTPResponse(status: status)
                 response.headerFields[.contentType] = "application/json; charset=utf-8"
                 response.headerFields[.contentLength] = "\(data.count)"
@@ -98,7 +99,8 @@ public extension MockServerTransport.Stub {
     }
 }
 
-private extension HTTPRequest {
+public extension HTTPRequest {
+    /// 쿼리 파라미터 값을 읽어옵니다.
     func queryItem(named name: String) -> String? {
         guard let path else { return nil }
         if let url = URL(string: "https://example.com\(path)"),

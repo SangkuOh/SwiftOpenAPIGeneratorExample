@@ -1,4 +1,6 @@
 import SwiftUI
+import AppService
+import AppData
 
 extension ContentFeature: View {
     /// 입력 필드, 로딩 상태, 결과/에러 라벨을 단순한 VStack으로 배치한 예제 UI입니다.

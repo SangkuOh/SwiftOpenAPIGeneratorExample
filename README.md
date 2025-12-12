@@ -7,7 +7,7 @@ Swift OpenAPI Generator가 만든 클라이언트와 SwiftUI 화면을 잇는 �
 - 의존성은 `Environment(\.appDependencies)` 한 경로에서 주입하며, 기본값은 `AppDependencies.live()`가 `GreetingRepositoryFactory.live()`를 통해 조립한 라이브 의존성입니다. UI만 빠르게 확인할 때는 `.environment(\.appDependencies, .preview())`로 덮어써 목 저장소를 사용하세요.
 - UI → Service(도메인/비즈니스 규칙) → Repository(데이터 접근) 흐름을 최소 경로로 두고, Repository가 OpenAPI DTO를 도메인으로 매핑합니다.
 - 네트워크는 `APIInfra`가 `APIClient`/`APITypes` 생성물을 감싸서 AppData만 알도록 하고, UI/도메인은 OpenAPI 세부사항을 모릅니다.
-- `Modules` Swift 패키지는 `AppService`/`AppData`/`AppUI`/`APIInfra`/`APITypes`/`APIClient` 타깃으로 구성됩니다. `AppUI`는 `AppService`만 의존하고, 저장소 조립은 App 타깃에서 `GreetingRepositoryFactory`로 수행합니다.
+- `Modules` Swift 패키지는 `AppService`/`AppData`/`AppUI`/`APIInfra`/`APITypes`/`APIClient` 타깃으로 구성됩니다. `AppUI`는 화면과 `AppDependencies` 사용만 담당하고, 저장소 조립은 `GreetingRepositoryFactory`(AppData)에서 수행합니다.
 - OpenAPI 스펙은 `api-spec/openapi/openapi.yaml` 한 곳에서 관리하고, 생성 설정은 `Modules/Sources/APITypes/openapi-generator-config.yaml`·`Modules/Sources/APIClient/openapi-generator-config.yaml`로 분리해 types/client를 따로 생성합니다.
 - 프리뷰/테스트 모킹은 `APIMockScenarios` 한 곳에서 스텁을 만들고 `MockServerTransport`로 실행합니다. UI만 빠르게 확인하려면 `AppDependencies.preview()`를, 실제 API 경로를 목으로 타려면 `GreetingRepositoryFactory.preview()`로 저장소를 만든 뒤 `AppDependencies.live(repository:)`로 전달하세요.
 
@@ -18,12 +18,13 @@ Swift OpenAPI Generator가 만든 클라이언트와 SwiftUI 화면을 잇는 �
 ## 실행 방법
 1) **실제 API(기본)**: `SwiftOpenAPIGeneratorExampleApp`은 기본 Environment에 `AppDependencies.live()`를 제공하므로 바로 실행해 실제 API 호출 흐름을 확인하세요.  
 2) **목으로 보기**: UI만 빠르게 확인하거나 네트워크를 끄고 싶다면 `ContentFeature().environment(\.appDependencies, .preview())`처럼 프리뷰/런타임에서 명시적으로 목 의존성을 주입하세요. `GreetingRepositoryFactory.preview(stubs:)`와 `AppDependencies.live(repository:)`를 조합하면 OpenAPI 경로를 그대로 타면서도 목으로 검증할 수 있습니다.
+   - 시나리오별 프리뷰가 필요하면 `APIMockScenarios`에서 기본 스텁을 가져온 뒤 특정 엔드포인트 스텁만 덮어써 `AppDependencies.preview(stubs:)`로 주입하면 됩니다. 예: `AppDependencies.preview(stubs: APIMockScenarios.defaults(overriding: [APIMockScenarios.Greeting.response(status: .internalServerError)]))`
 3) **커스텀 스펙 적용**: `api-spec/openapi/openapi.yaml`과 `Modules/Sources/APITypes`·`Modules/Sources/APIClient`의 생성 설정을 원하는 계약/옵션으로 수정하면 빌드 시 플러그인이 자동 재생성합니다. 생성물은 DerivedData 아래에서만 유지됩니다.
 
 ## 프로젝트 구조
 - `Modules/Package.swift`: 계층별 라이브러리 타겟을 선언한 Swift 패키지 매니페스트.
 - `Modules/Sources/AppUI/`: 입력/액션/상태·에러 표현을 담은 SwiftUI 화면과 `EnvironmentValues` 확장, `AppDependencies`.
-- `Modules/Sources/AppService/`: `GreetingEntity` 도메인 모델, `GreetingService`/`GreetingRepository` 인터페이스, 기본 서비스 구현, 테스트용 `MockGreetingRepository`.
+- `Modules/Sources/AppService/`: `GreetingEntity` 도메인 모델, `GreetingService`/`GreetingRepository` 인터페이스, 기본 서비스 구현.
 - `Modules/Sources/AppData/`: `DefaultGreetingRepository` 구현과 저장소 조립 헬퍼.
 - `Modules/Sources/APIInfra/`: API 구성(`APIConfiguration`), `APIEnvironment`, `GreetingAPI` 래퍼, `MockServerTransport`, `APIMockScenarios`, `RemoteAPIError`.
 - `Modules/Sources/APITypes/`: OpenAPI types 전용 타깃 설정 파일.

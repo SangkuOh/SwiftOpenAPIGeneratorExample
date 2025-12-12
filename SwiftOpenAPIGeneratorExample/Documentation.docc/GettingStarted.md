@@ -6,7 +6,7 @@
 - 프로덕션에서는 HTTPS를 기본으로 사용하고, 로컬 개발 시에만 필요한 경우에만 HTTP를 허용하세요. HTTP 예외는 `.xcconfig`의 `API_ALLOW_INSECURE_HOSTS`로 관리합니다.
 
 ## 샘플 실행
-1. 백엔드를 기동한 상태라면 기본 Environment가 `AppDependencies.live()`로 채워지므로 바로 실제 API 흐름을 확인할 수 있습니다. 네트워크 없는 환경에서 UI만 검증하려면 `ContentFeature().environment(\.appDependencies, .preview())`로 목 의존성을 명시하세요. OpenAPI 경로를 따라가며 목을 쓰고 싶다면 `GreetingRepositoryFactory.preview()/live`로 저장소를 만든 뒤 `AppDependencies.live(repository:)`로 감싸 전달합니다.
+1. 백엔드를 기동한 상태라면 기본 Environment가 `AppDependencies.live()`로 채워지므로 바로 실제 API 흐름을 확인할 수 있습니다. 네트워크 없는 환경에서 UI만 검증하려면 `ContentFeature().environment(\.appDependencies, .preview())`로 목 의존성을 명시하세요. 시나리오별로 응답을 바꾸려면 `APIMockScenarios`에서 스텁을 만든 뒤 `AppDependencies.preview(stubs:)`로 주입하면 됩니다. OpenAPI 경로를 따라가며 목을 쓰고 싶다면 `GreetingRepositoryFactory.preview()/live`로 저장소를 만든 뒤 `AppDependencies.live(repository:)`로 감싸 전달합니다.
 2. `SwiftOpenAPIGeneratorExample.xcodeproj`를 열고 기본 타깃을 선택한 뒤 시뮬레이터/디바이스를 지정합니다.
 3. 실행하면 `ContentFeature`에서 이름을 입력하고 “Fetch greeting”을 눌러 생성된 클라이언트가 만든 요청과 응답 처리를 확인할 수 있습니다.
 
